@@ -1,0 +1,38 @@
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+import joblib
+
+# Assume we have a simple pre-collected dataset
+data = [
+    ("What time is it?", 'question'),
+    ("It's 10 o'clock.", 'not question'),
+    ("Where are you?", 'question'),
+    ("I'm at the park.", 'not question'),
+    # Add more examples here
+]
+
+# Split data into sentences and labels
+sentences, labels = zip(*data)
+
+# Create a pipeline that first creates bag of words representation then applies logistic regression
+model = Pipeline([
+    ('vectorizer', CountVectorizer()),
+    ('classifier', LogisticRegression())
+])
+
+# Train the model
+model.fit(sentences, labels)
+
+# Save the model
+joblib.dump(model, 'question_classifier.pkl')
+
+# Function to classify new sentences
+def classify(sentence):
+    model = joblib.load('question_classifier.pkl')
+    prediction = model.predict([sentence])
+    return prediction[0]
+
+# Test the function
+print(classify("What is AI?"))
+print(classify("AI stands for Artificial Intelligence."))
